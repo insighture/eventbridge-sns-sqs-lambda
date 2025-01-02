@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: EventBridge to SNS to SQS to Lambda pipeline
+
+Resources:
+  EventBridgeRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: EventBridge rule to trigger SNS topic
+      EventPattern:
+        source:
+          - "custom.source"
+      Targets:
+        - Arn: !Ref SNSTopic
+          Id: "SNSTarget"
+
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: "EventBridge SNS Topic"
+
+  SNSPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref SNSTopic
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: "sns:Publish"
+            Resource: !Ref SNSTopic
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !GetAtt EventBridgeRule.Arn
+
+  SQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 60
+
+  SQSTopicSubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      TopicArn: !Ref SNSTopic
+      Protocol: sqs
+      Endpoint: !GetAtt SQSQueue.Arn
+
+  SQSQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref SQSQueue
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: "sqs:SendMessage"
+            Resource: !GetAtt SQSQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !Ref SNSTopic
+
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello_world/
+      Handler: app.lambda_handler
+      Runtime: python3.13
+      Policies:
+        - SQSPollerPolicy:
+            QueueName: !GetAtt SQSQueue.QueueName
+      Environment:
+        Variables:
+          LOG_LEVEL: INFO
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt SQSQueue.Arn
+
+Outputs:
+  EventBridgeRuleArn:
+    Description: The ARN of the EventBridge Rule
+    Value: !GetAtt EventBridgeRule.Arn
+  SNSTopicArn:
+    Description: The ARN of the SNS Topic
+    Value: !Ref SNSTopic
+  SQSQueueUrl:
+    Description: The URL of the SQS Queue
+    Value: !Ref SQSQueue
+  LambdaFunctionName:
+    Description: The name of the Lambda Function
+    Value: !Ref LambdaFunction
