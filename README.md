@@ -66,8 +66,6 @@ This command will:
 - Deploy the stack to your AWS account.
 - Generate the necessary resources.
 
----
-
 ### 4. Test the Application
 
 1. **Manually Trigger an Event**:
