@@ -1,4 +1,4 @@
-# EventBridge to SNS to SQS to Lambda Pipeline - AWS SAM Application
+# EventBridge to SNS to SQS to Lambda - AWS SAM Application
 
 ## Overview
 
@@ -27,6 +27,22 @@ EventBridge -> SNS -> SQS -> Lambda -> CloudWatch Logs
 
 ---
 
+## Project Structure
+
+```
+.
+├── hello_world/
+│   ├── app.py               # Lambda function code
+│   ├── __init__.py          # Optional init file
+├── template.yaml            # AWS SAM template
+└── README.md                # Project documentation
+```
+
+- **`hello_world/app.py`**: Contains the Lambda function that processes messages from SQS.
+- **`template.yaml`**: Defines the AWS resources for the application.
+
+---
+
 ## Setup Instructions
 
 ### 1. Clone the Repository
@@ -52,31 +68,18 @@ This command will:
 
 ---
 
-## Resources Created
+### 4. Test the Application
 
-- **EventBridge Rule**: Captures custom events with the source `custom.source`.
-- **SNS Topic**: Publishes messages received from EventBridge.
-- **SQS Queue**: Subscribes to the SNS Topic and queues messages.
-- **Lambda Function**: Processes messages from the SQS Queue and logs them to CloudWatch Logs.
-
----
-
-## Testing the Application
-
-1. **Publish an Event to EventBridge**:
+1. **Manually Trigger an Event**:
    Use the AWS CLI to send a custom event to EventBridge:
    ```bash
-   aws events put-events --entries file://event.json
-   ```
-   Example `event.json`:
-   ```json
-   [
+   aws events put-events --entries '[
      {
        "Source": "custom.source",
        "DetailType": "TestEvent",
        "Detail": "{\"message\": \"Hello from EventBridge!\"}"
      }
-   ]
+   ]'
    ```
 
 2. **Verify Logs**:
@@ -86,19 +89,12 @@ This command will:
 
 ---
 
-## Project Structure
+## Resources Created
 
-```
-.
-├── hello_world/
-│   ├── app.py               # Lambda function code
-│   ├── __init__.py          # Optional init file
-├── template.yaml            # AWS SAM template
-└── README.md                # Project documentation
-```
-
-- **`hello_world/app.py`**: Contains the Lambda function that processes messages from SQS.
-- **`template.yaml`**: Defines the AWS resources for the application.
+- **EventBridge Rule**: Captures custom events with the source `custom.source`.
+- **SNS Topic**: Publishes messages received from EventBridge.
+- **SQS Queue**: Subscribes to the SNS Topic and queues messages.
+- **Lambda Function**: Processes messages from the SQS Queue and logs them to CloudWatch Logs.
 
 ---
 
