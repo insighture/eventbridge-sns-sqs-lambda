@@ -27,22 +27,6 @@ EventBridge -> SNS -> SQS -> Lambda -> CloudWatch Logs
 
 ---
 
-## Project Structure
-
-```
-.
-├── hello_world/
-│   ├── app.py               # Lambda function code
-│   ├── __init__.py          # Optional init file
-├── template.yaml            # AWS SAM template
-└── README.md                # Project documentation
-```
-
-- **`hello_world/app.py`**: Contains the Lambda function that processes messages from SQS.
-- **`template.yaml`**: Defines the AWS resources for the application.
-
----
-
 ## Setup Instructions
 
 ### 1. Clone the Repository
