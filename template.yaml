@@ -35,10 +35,16 @@ Resources:
               ArnEquals:
                 aws:SourceArn: !GetAtt EventBridgeRule.Arn
 
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+  
   SQSQueue:
     Type: AWS::SQS::Queue
     Properties:
       VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: 5
 
   SQSTopicSubscription:
     Type: AWS::SNS::Subscription
@@ -80,6 +86,7 @@ Resources:
           Type: SQS
           Properties:
             Queue: !GetAtt SQSQueue.Arn
+      Tracing: Active
 
 Outputs:
   EventBridgeRuleArn:
@@ -94,3 +101,6 @@ Outputs:
   LambdaFunctionName:
     Description: The name of the Lambda Function
     Value: !Ref LambdaFunction
+  CloudWatchDashboard:
+    Description: CloudWatch dashboard for metrics
+    Value: !Sub "https://console.aws.amazon.com/cloudwatch/home?region=${AWS::Region}#dashboards"
