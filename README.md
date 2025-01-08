@@ -80,7 +80,19 @@ This command will:
    ]'
    ```
 
-2. **Verify Logs**:
+2. **Manually Trigger an Failed Event**:
+   Use the AWS CLI to send a custom event to EventBridge:
+   ```bash
+   aws events put-events --entries '[
+     {
+       "Source": "custom.source",
+       "DetailType": "TestEvent",
+       "Detail": "{\"simulatedError\": \"true\"}"
+     }
+   ]'
+   ```
+
+3. **Verify Logs**:
    - Open the **CloudWatch Logs** console in AWS.
    - Navigate to the log group created by the Lambda function.
    - Confirm that the message is logged.
