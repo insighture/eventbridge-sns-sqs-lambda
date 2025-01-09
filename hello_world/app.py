@@ -17,22 +17,23 @@ def lambda_handler(event, context):
             
             # Extract the "detail" field in the SNS message
             event_detail = sns_message.get('detail', {})
-            
-            # Check for simulateError flag
-            if event_detail.get("simulateError") == "true":
-                raise ValueError("Simulated error triggered!")
-            
+
             # Extract the timestamp from the message (if available)
             start_time = float(sqs_body.get('timestamp', time.time() * 1000))
             current_time = time.time() * 1000
             latency = current_time - start_time
-
-           
+ 
             # Log latency
-            logger.info(f"Message Latency: {latency} ms")
+            logger.info(f"Event Latency: {latency} ms")
 
             # Log full event
             logger.info(f"Processing message: {json.dumps(sqs_body)}")
+
+            # Simulate failure for certain statuses
+            status = event_detail.get('status', '')
+            if status != "success":
+                raise ValueError(f"Unexpected status: {status}")
+            
         
         return {"statusCode": 200, "body": "Messages processed successfully"}
     except Exception as e:
