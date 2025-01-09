@@ -3,6 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: EventBridge to SNS to SQS to Lambda pipeline
 
 Resources:
+
   EventBridgeRule:
     Type: AWS::Events::Rule
     Properties:
@@ -78,9 +79,6 @@ Resources:
       Policies:
         - SQSPollerPolicy:
             QueueName: !GetAtt SQSQueue.QueueName
-      Environment:
-        Variables:
-          LOG_LEVEL: INFO
       Events:
         SQSTrigger:
           Type: SQS
