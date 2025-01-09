@@ -64,7 +64,7 @@ This command will:
    ]'
    ```
 
-2. **Manually Trigger an Failed Event**:
+2. **Manually Trigger a Failed Event**:
    Use the AWS CLI to send a custom event to EventBridge:
    ```bash
    aws events put-events --entries '[
